@@ -5,7 +5,9 @@ Contains C# scripts for the game, a unity package to import the project into you
 
 If you plan on repurposing our code or project, please contact us:
 Justen Koo: jkoo545@mail.endicott.edu
+Matt Cruz: mcruz772@mail.endicott.edu
 
-Lastly, check out our social:
+Check out our social:
 Website: https://sites.google.com/mail.endicott.edu/karma/home
-YouTube:
+Discord: https://discord.gg/5MFz569rt8
+YouTube: 
