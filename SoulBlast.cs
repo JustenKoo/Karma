@@ -1,20 +1,23 @@
-﻿// Author: Justen Koo
-// Soul Blast Ability Projectile
-// Edited code from: https://learn.unity.com/tutorial/create-an-ability-system-with-scriptable-objects#5cf5ecededbc2a36a1bd53b7
-
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu (menuName = "Abilities/SoulBlast")]
-public class SoulBlast : GameAbility
+public class SoulBlast : MonoBehaviour
 {
-    public GameObject projectile;
+    private GameObject projectile;
+    private GameObject playerCam;
     public float launchVelocity = 700f;
 
-    public void Trigger()
+    void Start()
     {
-        GameObject soulBlast = Instantiate(projectile, projectile.transform.position, projectile.transform.rotation);
-        soulBlast.GetComponent<Rigidbody>().AddRelativeForce(new Vector3(0, launchVelocity, 0));
+        projectile = (GameObject)Resources.Load("Prefabs/SoulBlastProjectile", typeof(GameObject));
+        // playerCam = GameObject.Find
+    }
+
+    public void Use(GameObject cam)
+    {
+        GameObject soulBlast = Instantiate(projectile, new Vector3(cam.transform.position.x, cam.transform.position.y, cam.transform.position.z), cam.transform.rotation);
+        soulBlast.GetComponent<Rigidbody>().AddRelativeForce(cam.transform.forward * launchVelocity);
+        Destroy(soulBlast, 2f);
     }
 }

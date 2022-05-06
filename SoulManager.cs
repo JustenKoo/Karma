@@ -7,7 +7,8 @@ using UnityEngine;
 
 public class SoulManager : MonoBehaviour
 {
-    private int currSoul = 0;
+    private SoulBlast sb;
+    [SerializeField] private int currSoul = 100;
     private int maxSoul = 100;
 
     // Start is called before the first frame update
@@ -37,12 +38,13 @@ public class SoulManager : MonoBehaviour
             currSoul += amount;
     }
 
-    public bool UseSoulBlast()
+    public void UseSoulBlast(GameObject cam)
     {
         if (currSoul >= 25)
-            return true;
-        else
-            return false;
+        {
+            sb.Use(cam);
+            currSoul -= 25;
+        }
     }
 
     public int GetCurrSoulAmount() { return currSoul; }

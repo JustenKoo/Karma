@@ -1,64 +1,62 @@
-﻿// Edited Code From: https://www.youtube.com/watch?v=AGd16aspnPA
+// Author: Justen Koo
+// Purpose: Performs the Soul Absorption raycast, soul management and damage.
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SoulAbsorptionTest : MonoBehaviour
+[CreateAssetMenu (menuName = "Abilities/Absorption")]
+public class Absorption : GameAbility
 {
-    public float weaponRange = 50f;
-    public float hitForce = 100f;
-    public Transform gunEnd;
+    [Header("Absorption Specific Variables")]
+    private float weaponRange = 50f;
+    private GameObject hands;
+    private Transform gunEnd;
+    private Camera fpsCam;
+    private LineRenderer laserLine;
+    private LineRenderer soulBeam;
+    private SoulManager sm;
 
-    public Camera fpsCam;
-    public LineRenderer laserLine;
+    public override void Initialize(GameObject player)
+    {
+        fpsCam = player.transform.Find("Camera").GetComponent<Camera>();
+        hands = fpsCam.transform.Find("Hands_Without_Weapon").gameObject;
+        gunEnd = hands.transform.Find("HandEnd");
+        laserLine = gunEnd.GetComponent<LineRenderer>();
+        soulBeam = hands.transform.Find("HandEndBeam").GetComponent<LineRenderer>();
+        Debug.Log("Initialized: " + aName);
 
-    public LineRenderer soulBeam;
+        sm = player.transform.GetComponent<SoulManager>();
+    }
 
-    // DELETE: THIS IS ONLY FOR DEV TESTING
-    public bool devMode = false;
+    public override void TriggerAbility()
+    {
+        if (activeTime > 0)
+        {
+            abState = AbilityState.ACTIVE;
+        }
+        else
+        {
+            abState = AbilityState.COOLDOWN;
+        }
+    }
 
-    // Timers
-    public bool inUse = true;
-    public float useTime = 5f;
-    public float activeTime = 2f;
-    public bool inCooldown = false;
-    public float cooldownTime = 10f;
-
-    void Update()
+    public override void UpdateAbility()
     {
         // Time handling
-        if (inCooldown)
+        if (abState == AbilityState.COOLDOWN)
         {
             cooldownTime -= Time.deltaTime;
             if (cooldownTime <= 0)
             {
-                inCooldown = false;
-                useTime = 5f;
+                abState = AbilityState.READY;
                 activeTime = 2f;
             }
         }
 
-        // DELETE: THIS IS ONLY FOR DEV TESTING
-        if (Input.GetKeyDown("p"))
+        if (Input.GetButton("Fire2") && abState != AbilityState.COOLDOWN && activeTime > 0 && sm.GetCurrSoulAmount() > 0)
         {
-            if (devMode == true)
-            {
-                devMode = false;
-                Debug.Log("DevMode is Off");
-            }
-            else
-            {
-                devMode = true;
-                Debug.Log("DevMode is On");
-            }
-        }
-
-        // Normal Raycast (how the mouse is supposed to function
-        //if (Input.GetButton("Fire2") && inCooldown == false && useTime > 0 && activeTime > 0)
-        
-        // DELETE: THIS IS ONLY FOR DEV TESTING
-        if (Input.GetButton("Fire2") && devMode == true)
-        {
+            abState = AbilityState.ACTIVE;
             laserLine.enabled = true;
             Vector3 rayOrigin = fpsCam.ViewportToWorldPoint(new Vector3(0.5f, 0.5f, 0));
             RaycastHit hit;
@@ -73,6 +71,10 @@ public class SoulAbsorptionTest : MonoBehaviour
                 if (hit.rigidbody.tag == "Enemy")
                 {
                     GameObject ss = hit.transform.Find("SoulSource").gameObject;
+
+                    EnemyHealthManager enemy = hit.transform.GetComponent<EnemyHealthManager>();
+                    enemy.updateCurrHealth(-1);
+                    sm.UpdateSoul(-1);
 
                     // Four Points to Calculate the Bezier Curve
                     float midpointX = (rayOrigin.x + hit.transform.position.x) / 2;
@@ -113,13 +115,23 @@ public class SoulAbsorptionTest : MonoBehaviour
         {
             laserLine.enabled = false;
             activeTime -= Time.deltaTime;
-            inUse = false;
+            abState = AbilityState.READY;
             if (activeTime <= 0)
             {
-                inCooldown = true;
+                abState = AbilityState.COOLDOWN;
             }
 
-            // soulBeam.enabled = false;
+            soulBeam.enabled = false;
         }
+    }
+
+    public override void UpdateTimer()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override void UnlockAbility()
+    {
+        
     }
 }
