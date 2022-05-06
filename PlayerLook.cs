@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿// Author: Justen Koo
+// Purpose: allows the player to look around with the mouse
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
